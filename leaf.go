@@ -5,7 +5,7 @@ import (
     "math/rand"
     "math/cmplx"
     "os"
-    "bufio"
+//    "bufio"
     "time"
 )
 
@@ -38,8 +38,17 @@ func check(e error) {
     }
 }
 
+var frame int = 0
+
 func dumpall(growpoints []complex128, veinNodes []complex128, tree map[int] []int, influence []int) {
-    f,err := os.Create("./leaf.dot")
+    dumpall_str(growpoints, veinNodes, tree, influence, "") //This is working dump
+    str:= fmt.Sprintf("%06d", frame)
+    frame++
+    dumpall_str(growpoints, veinNodes, tree, influence, str) //This is frame dump
+}
+
+func dumpall_str(growpoints []complex128, veinNodes []complex128, tree map[int] []int, influence []int, postfix string) {
+    f,err := os.Create("./leaf"+postfix+".dot")
     check(err)
     defer f.Close()
     fmt.Fprintln(f,"graph T {")
@@ -70,10 +79,10 @@ func dumpall(growpoints []complex128, veinNodes []complex128, tree map[int] []in
 
     // Print influence
     for i, t:= range influence {
-	if t<len(veinNodes) {
-		fmt.Fprint(f,"grownode",i,"--veinNode",t,"[style=\"dotted\",color=\"blue\"]")
-	        fmt.Fprintln(f,"")
-	}
+    if t<len(veinNodes) {
+        fmt.Fprint(f,"grownode",i,"--veinNode",t,"[style=\"dotted\",color=\"blue\"]")
+            fmt.Fprintln(f,"")
+    }
     }
     fmt.Fprintln(f,"}")
 }
@@ -109,7 +118,7 @@ func main() {
             //Go over all influence points and gather distances. fill the closest
             influence[i] = findClosest(growpoints[i],veinNodes)
         }
-        fmt.Println("# influence",influence)
+//        fmt.Println("# influence",influence)
         dumpall(growpoints, veinNodes, tree, influence)
         //Calculate growth vectors
         {
@@ -122,7 +131,7 @@ func main() {
                     if k == i {
                         pnt := growpoints[j] - veinNodes[i]
                         pnt = Norm(pnt)
-			p += pnt
+                        p += pnt
                         needAdd = true
                     }
                 }
@@ -130,7 +139,7 @@ func main() {
                     p = Norm(p)
                     p = p * complex128(growthSpeed)
                     p = veinNodes[i] + p
-                    fmt.Println("# point",p)
+//                    fmt.Println("# point",p)
                     newNodes = append(newNodes,p)
                     tree[i] = append(tree[i], len(veinNodes)-1 + len(newNodes))
                 }
@@ -155,11 +164,13 @@ func main() {
             }
         }
         fmt.Println("# growpoints",len(growpoints))
-        fmt.Println("# growpoints",growpoints)
-	fmt.Print("Press 'Enter' to continue...")
-	bufio.NewReader(os.Stdin).ReadBytes('\n') 
+//        fmt.Println("# growpoints",growpoints)
+//        time.Sleep(time.Second)
+//    fmt.Print("Press 'Enter' to continue...")
+//    bufio.NewReader(os.Stdin).ReadBytes('\n') 
         growpoints = newGrowPoints
     }
+    dumpall(growpoints, veinNodes, tree, make([]int,0))
 
 
 }

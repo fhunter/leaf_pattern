@@ -15,3 +15,5 @@
 
 leaf
 leaf.pdf
+*.dot
+*.png
