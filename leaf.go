@@ -39,6 +39,14 @@ func makeInitialGrowPoints(growpoints []complex128, maxx float64, maxy float64, 
     return growpoints
 }
 
+func addGrowPoints(growpoints []complex128, maxx float64, maxy float64, density float64) []complex128 {
+    numberOfPointsToAdd:=int(maxx*maxy*density)
+    for i:=0;i<numberOfPointsToAdd;i++ {
+        growpoints = append(growpoints,complex(float64(rand.Intn(100)), float64(rand.Intn(100))))
+    }
+    return growpoints
+}
+
 func check(e error) {
     if e != nil {
         panic(e)
@@ -100,9 +108,9 @@ func dumpall_str(growpoints []complex128, veinNodes []complex128, tree map[int] 
 
 const pointnum int = 10000
 const maxveinpoints int = 40000
-const deathdistance float64 = 3
-const growthSpeed float64 = 0.9
-const addGrowthDensity float64 = 0.0003
+const deathdistance float64 = 2
+const growthSpeed float64 = 1
+const addGrowthDensity float64 = 0.003
 
 func main() {
     //Заполнение точками. Квадрат 100x100
@@ -117,7 +125,6 @@ func main() {
     veinNodes = append(veinNodes,50)
 
     tree[0] = make([]int,0, maxveinpoints)
-    //tree[0] = append(tree[0],0)
 
     for (len(growpoints) > 0) {
         //Make lists of influence
@@ -126,7 +133,6 @@ func main() {
             //Go over all influence points and gather distances. fill the closest
             influence[i] = findClosest(growpoints[i],veinNodes)
         }
-//        fmt.Println("# influence",influence)
         dumpall(growpoints, veinNodes, tree, influence)
         //Calculate growth vectors
         {
@@ -147,7 +153,6 @@ func main() {
                     p = Norm(p)
                     p = p * complex128(growthSpeed)
                     p = veinNodes[i] + p
-//                    fmt.Println("# point",p)
                     newNodes = append(newNodes,p)
                     tree[i] = append(tree[i], len(veinNodes)-1 + len(newNodes))
                 }
@@ -157,6 +162,7 @@ func main() {
             }
 
         }
+        growpoints = addGrowPoints(growpoints,100.0,100.0,addGrowthDensity)
         newGrowPoints:= make([]complex128,0,len(growpoints))
         //Delete any growth points that are too close
         for _, p:= range growpoints {
@@ -172,10 +178,6 @@ func main() {
             }
         }
         fmt.Println("# growpoints",len(growpoints))
-//        fmt.Println("# growpoints",growpoints)
-//        time.Sleep(time.Second)
-//    fmt.Print("Press 'Enter' to continue...")
-//    bufio.NewReader(os.Stdin).ReadBytes('\n') 
         growpoints = newGrowPoints
     }
     dumpall(growpoints, veinNodes, tree, make([]int,0))
