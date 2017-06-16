@@ -9,7 +9,7 @@ This is initial project to learn Go language
 
 ~~~
 for i in *.dot;do
-    dot -Kneato -n2 -Tpng -o `basename ${i} .dot`.png $i
+    dot -Kneato -n2 -Tpng -Gdpi=30 -o `basename ${i} .dot`.png $i
 done
 
 ~~~
