@@ -3,30 +3,21 @@ package main
 import (
     "fmt"
     "math/rand"
-    "math"
+    "math/cmplx"
+    "os"
+    "bufio"
+    "time"
 )
 
-type Point2D struct {
-    x float64
-    y float64
+func distance(p1 complex128, p2 complex128) float64 {
+    return cmplx.Abs(p2-p1)
 }
 
-func distance(p1 Point2D, p2 Point2D) float64 {
-    distance := math.Sqrt((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y))
-    return distance
+func Norm(p complex128) complex128 {
+    return cmplx.Rect(1, cmplx.Phase(p))
 }
 
-func Norm(p Point2D) Point2D {
-    dst:= distance(Point2D{0,0},p)
-    if dst == 0 { 
-        return p
-    }
-    p.x/=dst
-    p.y/=dst
-    return p
-}
-
-func findClosest(p Point2D, vec []Point2D) int {
+func findClosest(p complex128, vec []complex128) int {
     if len(vec)==0 {
         return 0
     }
@@ -41,35 +32,72 @@ func findClosest(p Point2D, vec []Point2D) int {
     return minIndex
 }
 
-
-const pointnum int = 40
-const maxveinpoints int = 40000000
-const deathdistance float64 = 10
-const growthSpeed float64 = 0.5
-
-func main() {
-    fmt.Println("digraph T {")
-    defer fmt.Println("}")
-    //Заполнение точками. Квадрат 100x100
-    growpoints := make([]Point2D, pointnum, pointnum)
-    for i:=0; i< pointnum; i++ {
-        //Make points here
-        growpoints[i].x = rand.Float64()*100.0
-        growpoints[i].y = rand.Float64()*100.0
+func check(e error) {
+    if e != nil {
+        panic(e)
     }
+}
 
+func dumpall(growpoints []complex128, veinNodes []complex128, tree map[int] []int, influence []int) {
+    f,err := os.Create("./leaf.dot")
+    check(err)
+    defer f.Close()
+    fmt.Fprintln(f,"graph T {")
     // Вывод точек роста
     for i, t := range growpoints {
         //Draw position - xxx [ label = i, pos = "0,0!" ]
-        fmt.Print("grownode",i," [label=\"",i,"\", color=\"green\", pos=\"",t.x,",",t.y,"!\" ] ")
-        fmt.Println("")
+//        fmt.Fprint(f,"grownode",i," [scale=0.01, label=\"",i,"\", color=\"green\", pos=\"",real(t),",",imag(t),"!\" ] ")
+        fmt.Fprint(f,"grownode",i," [label=\"",i,"\", color=\"green\", pos=\"",real(t)*32,",",imag(t)*32,"!\" ] ")
+        fmt.Fprintln(f,"")
+    }
+    //Print veinNodes
+
+    for i, t := range veinNodes {
+//        fmt.Fprint(f,"veinNode",i," [scale=0.01, label=\"",i,"\", color=\"red\", pos=\"",real(t),",",imag(t),"!\" ] ")
+        fmt.Fprint(f,"veinNode",i," [label=\"",i,"\", color=\"red\", pos=\"",real(t)*32,",",imag(t)*32,"!\" ] ")
+        fmt.Fprintln(f,"")
     }
 
-    veinNodes := make([]Point2D, 0, maxveinpoints)
+    //Print links
+
+    for i, t:= range tree {
+        for _, k:= range t {
+            fmt.Fprint(f,"veinNode",i,"--veinNode",k,"[ color=\"red\" ]")
+            fmt.Fprintln(f,"")
+        }
+    }
+    fmt.Fprintln(f,"")
+
+    // Print influence
+    for i, t:= range influence {
+	if t<len(veinNodes) {
+		fmt.Fprint(f,"grownode",i,"--veinNode",t,"[style=\"dotted\",color=\"blue\"]")
+	        fmt.Fprintln(f,"")
+	}
+    }
+    fmt.Fprintln(f,"}")
+}
+
+
+const pointnum int = 10000
+const maxveinpoints int = 40000
+const deathdistance float64 = 3
+const growthSpeed float64 = 0.9
+
+func main() {
+    //Заполнение точками. Квадрат 100x100
+    rand.Seed(time.Now().Unix())
+    growpoints := make([]complex128, pointnum, pointnum)
+    for i:=0; i< pointnum; i++ {
+        //Make points here
+        growpoints[i] = complex(float64(rand.Intn(100)), float64(rand.Intn(100)))
+    }
+
+    veinNodes := make([]complex128, 0, maxveinpoints)
 
     tree := make(map[int] []int)
 
-    veinNodes = append(veinNodes,Point2D{50,0})
+    veinNodes = append(veinNodes,50)
 
     tree[0] = make([]int,0, maxveinpoints)
     //tree[0] = append(tree[0],0)
@@ -81,30 +109,28 @@ func main() {
             //Go over all influence points and gather distances. fill the closest
             influence[i] = findClosest(growpoints[i],veinNodes)
         }
-        fmt.Println("#",influence)
+        fmt.Println("# influence",influence)
+        dumpall(growpoints, veinNodes, tree, influence)
         //Calculate growth vectors
         {
-            newNodes := make([]Point2D, 0, maxveinpoints)
+            newNodes := make([]complex128, 0, maxveinpoints)
             for i, _:= range veinNodes {
-                p:= Point2D{0,0} //Initial vector
+                p:= 0+0i //Initial vector
                 needAdd := false
                 for j, k:= range influence {
                     //Summ vectors
                     if k == i {
-                        pnt := Point2D{growpoints[j].x - veinNodes[i].x, growpoints[j].y - veinNodes[i].y}
+                        pnt := growpoints[j] - veinNodes[i]
                         pnt = Norm(pnt)
-                        p.x += pnt.x
-                        p.y += pnt.y
+			p += pnt
                         needAdd = true
                     }
                 }
                 if needAdd {
                     p = Norm(p)
-                    p.x = p.x * growthSpeed
-                    p.y = p.y * growthSpeed
-                    fmt.Println("#",p)
-                    p.x = veinNodes[i].x + p.x
-                    p.y = veinNodes[i].y + p.y
+                    p = p * complex128(growthSpeed)
+                    p = veinNodes[i] + p
+                    fmt.Println("# point",p)
                     newNodes = append(newNodes,p)
                     tree[i] = append(tree[i], len(veinNodes)-1 + len(newNodes))
                 }
@@ -114,7 +140,7 @@ func main() {
             }
 
         }
-        newGrowPoints:= make([]Point2D,0,len(growpoints))
+        newGrowPoints:= make([]complex128,0,len(growpoints))
         //Delete any growth points that are too close
         for _, p:= range growpoints {
             flag := true
@@ -129,24 +155,11 @@ func main() {
             }
         }
         fmt.Println("# growpoints",len(growpoints))
+        fmt.Println("# growpoints",growpoints)
+	fmt.Print("Press 'Enter' to continue...")
+	bufio.NewReader(os.Stdin).ReadBytes('\n') 
         growpoints = newGrowPoints
-        fmt.Println("# growpoints",len(growpoints))
     }
 
-    //Print veinNodes
-
-    for i, t := range veinNodes {
-        fmt.Print("veinNode",i," [label=\"",i,"\", color=\"red\", pos=\"",t.x,",",t.y,"!\" ] ")
-        fmt.Println("")
-    }
-
-    //Print links
-
-    for i, t:= range tree {
-        for _, k:= range t {
-            fmt.Print("veinNode",i,"->veinNode",k,"[ color=\"red\" ]")
-            fmt.Println("")
-        }
-    }
 
 }
