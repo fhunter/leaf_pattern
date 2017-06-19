@@ -4,6 +4,7 @@ import (
     "fmt"
     "math/rand"
     "math/cmplx"
+    "math"
     "os"
     "time"
 )
@@ -53,6 +54,34 @@ func check(e error) {
     }
 }
 
+func weight(tree map[int] []int, node int) float64 {
+    var ret float64 = 0.5
+    if node > len(tree) {
+        return ret
+    }
+    if len(tree[node]) == 0 {
+        //This is a leaf
+        ret = 1
+    } else {
+        ret = 0
+        //This is a junction - 
+        for _, k:= range tree[node] {
+            tmp:= weight(tree, k)
+            ret += tmp*tmp
+        }
+        ret= math.Sqrt(ret)
+    }
+    return ret
+}
+
+func calc_weights(tree map[int] []int,length int) []float64 {
+    weights:= make([]float64, length + 1, length+1)
+    for i, _:= range tree {
+        weights[i]= weight(tree, i)
+    }
+    return weights
+}
+
 var frame int = 0
 
 func dumpall(growpoints []complex128, veinNodes []complex128, tree map[int] []int, influence []int) {
@@ -85,9 +114,10 @@ func dumpall_str(growpoints []complex128, veinNodes []complex128, tree map[int] 
 
     //Print links
     fmt.Fprintln(f,"edge [tailclip=false,headclip=false,color=\"red\"]")
+    weights:= calc_weights(tree,len(veinNodes))
     for i, t:= range tree {
         for _, k:= range t {
-            fmt.Fprint(f,"veinNode",i,"--veinNode",k)
+            fmt.Fprint(f,"veinNode",i,"--veinNode",k,"[penwidth=",int(weights[i]*12+0.5),"]")
             fmt.Fprintln(f,"")
         }
     }
@@ -110,7 +140,7 @@ const pointnum int = 10000
 const maxveinpoints int = 40000
 const deathdistance float64 = 2
 const growthSpeed float64 = 1
-const addGrowthDensity float64 = 0.003
+const addGrowthDensity float64 = 0.000
 
 func main() {
     //Заполнение точками. Квадрат 100x100
