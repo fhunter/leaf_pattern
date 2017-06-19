@@ -18,7 +18,7 @@ func Norm(p complex128) complex128 {
 
 func findClosest(p complex128, vec []complex128) int {
     if len(vec)==0 {
-        return 0
+        return math.MaxInt32
     }
     minDistance:= distance(p,vec[0])
     minIndex:= 0
@@ -34,7 +34,7 @@ func findClosest(p complex128, vec []complex128) int {
 func makeInitialGrowPoints(growpoints []complex128, maxx float64, maxy float64, pointnum int) []complex128 {
     for i:=0; i< pointnum; i++ {
         //Make points here
-        growpoints[i] = complex(float64(rand.Intn(100)), float64(rand.Intn(100)))
+        growpoints[i] = complex(float64(rand.Intn(int(maxx))), float64(rand.Intn(int(maxy))))
     }
     return growpoints
 }
@@ -42,7 +42,7 @@ func makeInitialGrowPoints(growpoints []complex128, maxx float64, maxy float64, 
 func addGrowPoints(growpoints []complex128, maxx float64, maxy float64, density float64) []complex128 {
     numberOfPointsToAdd:=int(maxx*maxy*density)
     for i:=0;i<numberOfPointsToAdd;i++ {
-        growpoints = append(growpoints,complex(float64(rand.Intn(100)), float64(rand.Intn(100))))
+        growpoints = append(growpoints,complex(float64(rand.Intn(int(maxx))), float64(rand.Intn(int(maxy)))))
     }
     return growpoints
 }
