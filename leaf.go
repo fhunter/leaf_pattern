@@ -5,8 +5,10 @@ import (
     "math/rand"
     "math/cmplx"
     "math"
-    "os"
     "time"
+//    "tree"
+    "graphviz_dump"
+    "openscad_dump"
 )
 
 func distance(p1 complex128, p2 complex128) float64 {
@@ -48,12 +50,6 @@ func addGrowPoints(growpoints []complex128, maxx float64, maxy float64, density 
     return growpoints
 }
 
-func check(e error) {
-    if e != nil {
-        panic(e)
-    }
-}
-
 func weight(tree map[int] []int, node int) float64 {
     var ret float64 = 0.5
     if node > len(tree) {
@@ -82,85 +78,7 @@ func calc_weights(tree map[int] []int,length int) []float64 {
     return weights
 }
 
-var frame int = 0
 
-func dumpall(growpoints []complex128, veinNodes []complex128, tree map[int] []int, influence []int) {
-//    dumpall_str(growpoints, veinNodes, tree, influence, "") //This is working dump
-    dumpscad_str(veinNodes, tree, "")
-    str:= fmt.Sprintf("%06d", frame)
-    frame++
-//    dumpall_str(growpoints, veinNodes, tree, influence, str) //This is frame dump
-    dumpscad_str(veinNodes, tree, str)
-}
-
-func dumpall_str(growpoints []complex128, veinNodes []complex128, tree map[int] []int, influence []int, postfix string) {
-    f,err := os.Create("./leaf"+postfix+".dot")
-    check(err)
-    defer f.Close()
-    fmt.Fprintln(f,"graph T {")
-    // Вывод точек роста
-    fmt.Fprintln(f,"node [color=\"green\"]")
-    for i, t := range growpoints {
-        //Draw position - xxx [ label = i, pos = "0,0!" ]
-        fmt.Fprint(f,"grownode",i," [label=\"",i,"\", pos=\"",real(t)*32,",",imag(t)*32,"!\" ] ")
-        fmt.Fprintln(f,"")
-    }
-
-    fmt.Fprintln(f,"node [shape=none,color=\"red\", fillcolor=\"transparent\", bgcolor=\"transparent\"]")
-    //Print veinNodes
-    for i, t := range veinNodes {
-//        fmt.Fprint(f,"veinNode",i," [label=\"",i,"\", pos=\"",real(t)*32,",",imag(t)*32,"!\" ] ")
-        fmt.Fprint(f,"veinNode",i," [label=\"\", pos=\"",real(t)*32,",",imag(t)*32,"!\" ] ")
-        fmt.Fprintln(f,"")
-    }
-
-    //Print links
-    fmt.Fprintln(f,"edge [tailclip=false,headclip=false,color=\"red\"]")
-    weights:= calc_weights(tree,len(veinNodes))
-    for i, t:= range tree {
-        for _, k:= range t {
-            fmt.Fprint(f,"veinNode",i,"--veinNode",k,"[penwidth=",int(weights[i]*12+0.5),"]")
-            fmt.Fprintln(f,"")
-        }
-    }
-    fmt.Fprintln(f,"")
-
-    // Print influence
-    fmt.Fprintln(f,"edge [tailclip=true,headclip=false,color=\"blue\",style=\"dotted\"]")
-    for i, t:= range influence {
-        if t<len(veinNodes) {
-            fmt.Fprint(f,"grownode",i,"--veinNode",t)
-            fmt.Fprintln(f,"")
-        }
-    }
-    fmt.Fprintln(f,"}")
-    fmt.Fprintln(f," ")
-}
-
-func dumpscad_str(veinNodes []complex128, tree map[int] []int, postfix string) {
-    f,err := os.Create("./data"+postfix+".scad")
-    check(err)
-    defer f.Close()
-    weights:= calc_weights(tree,len(veinNodes))
-    //Print nodes
-    for i, t:= range veinNodes {
-        fmt.Fprint(f,"node(p1=[",real(t),",",imag(t),"],width=",1,",ht=",(1+weights[i]),");")
-        fmt.Fprintln(f,"")
-    }
-    fmt.Fprintln(f," ")
-    fmt.Fprintln(f," ")
-    //Print links
-    /*
-    for i, t:= range tree {
-        for _, k:= range t {
-            fmt.Fprint(f,"branch(p1=[",real(veinNodes[i]),",",imag(veinNodes[i]),"],p2=[",real(veinNodes[k]),",",imag(veinNodes[k]),"],width1=",weights[i],",width2=",weights[k],");")
-            fmt.Fprintln(f,"")
-        }
-    }
-    */
-    fmt.Fprintln(f," ")
-    fmt.Fprintln(f," ")
-}
 
 
 const pointnum int = 10000
@@ -190,7 +108,9 @@ func main() {
             //Go over all influence points and gather distances. fill the closest
             influence[i] = findClosest(growpoints[i],veinNodes)
         }
-        dumpall(growpoints, veinNodes, tree, influence)
+        weights:= calc_weights(tree,len(veinNodes))
+        graphviz_dump.Dumpall(growpoints, veinNodes, tree, influence, weights)
+        openscad_dump.Dumpall(growpoints, veinNodes, tree, influence, weights)
         //Calculate growth vectors
         {
             newNodes := make([]complex128, 0, maxveinpoints)
@@ -237,7 +157,9 @@ func main() {
         fmt.Println("# growpoints",len(growpoints))
         growpoints = newGrowPoints
     }
-    dumpall(growpoints, veinNodes, tree, make([]int,0))
+    weights:= calc_weights(tree,len(veinNodes))
+    graphviz_dump.Dumpall(growpoints, veinNodes, tree, make([]int,0), weights)
+    openscad_dump.Dumpall(growpoints, veinNodes, tree, make([]int,0), weights)
 
 
 }
