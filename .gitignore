@@ -19,3 +19,5 @@ leaf.pdf
 *.png
 openscad/data.scad
 data*.scad
+
+*.swp
