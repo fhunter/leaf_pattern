@@ -86,9 +86,11 @@ var frame int = 0
 
 func dumpall(growpoints []complex128, veinNodes []complex128, tree map[int] []int, influence []int) {
     dumpall_str(growpoints, veinNodes, tree, influence, "") //This is working dump
+    dumpscad_str(veinNodes, tree, "")
     str:= fmt.Sprintf("%06d", frame)
     frame++
     dumpall_str(growpoints, veinNodes, tree, influence, str) //This is frame dump
+    dumpscad_str(veinNodes, tree, str)
 }
 
 func dumpall_str(growpoints []complex128, veinNodes []complex128, tree map[int] []int, influence []int, postfix string) {
@@ -132,6 +134,23 @@ func dumpall_str(growpoints []complex128, veinNodes []complex128, tree map[int] 
         }
     }
     fmt.Fprintln(f,"}")
+    fmt.Fprintln(f," ")
+}
+
+func dumpscad_str(veinNodes []complex128, tree map[int] []int, postfix string) {
+    f,err := os.Create("./data"+postfix+".scad")
+    check(err)
+    defer f.Close()
+
+    //Print links
+    weights:= calc_weights(tree,len(veinNodes))
+    for i, t:= range tree {
+        for _, k:= range t {
+            fmt.Fprint(f,"branch(p1=[",real(veinNodes[i]),",",imag(veinNodes[i]),"],p2=[",real(veinNodes[k]),",",imag(veinNodes[k]),"],width1=",weights[i],",width2=",weights[k],");")
+            fmt.Fprintln(f,"")
+        }
+    }
+    fmt.Fprintln(f," ")
     fmt.Fprintln(f," ")
 }
 
