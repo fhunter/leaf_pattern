@@ -8,3 +8,8 @@ leaf.pdf: leaf.dot Makefile
 
 leaf: leaf.go
 	./build.sh
+
+clean:
+	-@rm *.dot
+	-@rm *.scad
+
