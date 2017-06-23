@@ -18,5 +18,10 @@ module branch(p1=[0,0],p2=[1,1],width1=1.5,width2=1,ht=1) {
 
 module node(p1=[0,0],width=1,ht=1) {
     $fn=10;
-    translate(p1) cylinder(h=ht,d=width);
+    color("lime") translate(p1) cylinder(h=ht,d=width);
+};
+
+module growpoint(p1=[0,0]) {
+    $fn=10;
+    color("yellow") translate(p1) cylinder(h=5,d=1);
 };

@@ -78,9 +78,6 @@ func calc_weights(tree map[int] []int,length int) []float64 {
     return weights
 }
 
-
-
-
 const pointnum int = 10000
 const maxveinpoints int = 40000
 const deathdistance float64 = 2

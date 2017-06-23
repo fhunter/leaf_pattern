@@ -13,21 +13,30 @@ func check(e error) {
     }
 }
 
-
-func Dumpall(growpoints []complex128, veinNodes []complex128, tree map[int] []int, influence []int, weights []float64) {
-    dumpscad_str(veinNodes, tree, weights, "")
-    str:= fmt.Sprintf("%06d", frame)
-    frame++
-    dumpscad_str(veinNodes, tree, weights, str)
+func makeCoord(point complex128) string {
+	str:= fmt.Sprintf("[%.4f,%.4f]",real(point),imag(point))
+	return str
 }
 
-func dumpscad_str(veinNodes []complex128, tree map[int] []int, weights []float64, postfix string) {
+
+func Dumpall(growpoints []complex128, veinNodes []complex128, tree map[int] []int, influence []int, weights []float64) {
+    dumpscad_str(growpoints, veinNodes, tree, weights, "")
+    str:= fmt.Sprintf("%06d", frame)
+    frame++
+    dumpscad_str(growpoints, veinNodes, tree, weights, str)
+}
+
+func dumpscad_str(growpoints []complex128, veinNodes []complex128, tree map[int] []int, weights []float64, postfix string) {
     f,err := os.Create("./data"+postfix+".scad")
     check(err)
     defer f.Close()
+    for _, t:= range growpoints {
+        fmt.Fprint(f,"growpoint(p1=",makeCoord(t),");")
+        fmt.Fprint(f,"")
+    }
     //Print nodes
     for i, t:= range veinNodes {
-        fmt.Fprint(f,"node(p1=[",real(t),",",imag(t),"],width=",1,",ht=",(1+weights[i]),");")
+        fmt.Fprint(f,"node(p1=",makeCoord(t),",width=",1,",ht=",(1+weights[i]),");")
         fmt.Fprintln(f,"")
     }
     fmt.Fprintln(f," ")

@@ -13,6 +13,11 @@ func check(e error) {
     }
 }
 
+func makeCoord(point complex128) string {
+	str:= fmt.Sprintf("%.4f,%.4f",real(point),imag(point))
+	return str
+}
+
 
 func Dumpall(growpoints []complex128, veinNodes []complex128, tree map[int] []int, influence []int, weights []float64) {
     dumpall_str(growpoints, veinNodes, tree, influence, weights, "") //This is working dump
@@ -30,7 +35,8 @@ func dumpall_str(growpoints []complex128, veinNodes []complex128, tree map[int] 
     fmt.Fprintln(f,"node [color=\"green\"]")
     for i, t := range growpoints {
         //Draw position - xxx [ label = i, pos = "0,0!" ]
-        fmt.Fprint(f,"grownode",i," [label=\"",i,"\", pos=\"",real(t)*32,",",imag(t)*32,"!\" ] ")
+        fmt.Fprint(f,"grownode",i," [label=\"",i,"\", ")
+		fmt.Fprint(f,"pos=\"",makeCoord(t*32),"!\" ] ")
         fmt.Fprintln(f,"")
     }
 
@@ -38,7 +44,8 @@ func dumpall_str(growpoints []complex128, veinNodes []complex128, tree map[int] 
     //Print veinNodes
     for i, t := range veinNodes {
 //        fmt.Fprint(f,"veinNode",i," [label=\"",i,"\", pos=\"",real(t)*32,",",imag(t)*32,"!\" ] ")
-        fmt.Fprint(f,"veinNode",i," [label=\"\", pos=\"",real(t)*32,",",imag(t)*32,"!\" ] ")
+        fmt.Fprint(f,"veinNode",i," [label=\"\", ")
+		fmt.Fprint(f,"pos=\"",makeCoord(t*32),"!\" ] ")
         fmt.Fprintln(f,"")
     }
 

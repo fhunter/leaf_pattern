@@ -6,7 +6,7 @@ leaf.pdf: leaf.dot Makefile
 #leaf.dot: leaf
 #	./leaf 
 
-leaf: leaf.go
+leaf: leaf.go src/openscad_dump/openscad.go src/graphviz_dump/graphviz.go src/tree/tree.go
 	./build.sh
 
 clean:
