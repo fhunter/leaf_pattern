@@ -3,6 +3,8 @@ package openscad_dump
 import (
     "fmt"
     "os"
+    "math/cmplx"
+    "math"
     )
 
 var frame int = 0
@@ -32,24 +34,42 @@ func dumpscad_str(growpoints []complex128, veinNodes []complex128, tree map[int]
     defer f.Close()
     for _, t:= range growpoints {
         fmt.Fprint(f,"growpoint(p1=",makeCoord(t),");")
-        fmt.Fprint(f,"")
+        fmt.Fprintln(f,"")
     }
     //Print nodes
     for i, t:= range veinNodes {
-        fmt.Fprint(f,"node(p1=",makeCoord(t),",width=",1,",ht=",(1+weights[i]),");")
+        fmt.Fprint(f,"node(p1=",makeCoord(t),",width=",(weights[i]),",ht=1);")
         fmt.Fprintln(f,"")
     }
     fmt.Fprintln(f," ")
     fmt.Fprintln(f," ")
     //Print links
-    /*
     for i, t:= range tree {
         for _, k:= range t {
-            fmt.Fprint(f,"branch(p1=[",real(veinNodes[i]),",",imag(veinNodes[i]),"],p2=[",real(veinNodes[k]),",",imag(veinNodes[k]),"],width1=",weights[i],",width2=",weights[k],");")
-            fmt.Fprintln(f,"")
+            var temp []complex128;
+            _, angle:= cmplx.Polar(veinNodes[k]-veinNodes[i])
+            angle+= math.Pi/2
+            vector1:= cmplx.Rect(weights[i]/2,angle)
+            vector2:= cmplx.Rect(weights[k]/2,angle)
+            p1_1:=veinNodes[i]+vector1
+            p1_2:=veinNodes[i]-vector1
+            p2_1:=veinNodes[k]+vector2
+            p2_2:=veinNodes[k]-vector2
+            temp = append(temp,p1_1,p1_2,p2_2,p2_1)
+            fmt.Fprint(f,"branch(p1=[")
+            flag:=false
+            for _,point:= range temp {
+                if(flag) {
+                    fmt.Fprint(f,",")
+                }else{
+                    flag=true
+                }
+                fmt.Fprint(f,makeCoord(point));
+            }
+            fmt.Fprint(f,"],ht=1);")
+            fmt.Fprintln(f," ")
         }
     }
-    */
     fmt.Fprintln(f," ")
     fmt.Fprintln(f," ")
 }
