@@ -47,7 +47,7 @@ func dumpscad_str(growpoints []complex128, veinNodes []complex128, tree map[int]
     for i, t:= range tree {
         for _, k:= range t {
             var temp []complex128;
-            _, angle:= cmplx.Polar(veinNodes[k]-veinNodes[i])
+            angle:= cmplx.Phase(veinNodes[k]-veinNodes[i])
             angle+= math.Pi/2
             vector1:= cmplx.Rect(weights[i]/2,angle)
             vector2:= cmplx.Rect(weights[k]/2,angle)
