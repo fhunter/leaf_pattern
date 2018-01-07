@@ -1,15 +1,15 @@
-all: leaf.pdf
+all: leaf.gif
 
-leaf.pdf: leaf.dot Makefile
-	dot -Kneato -n2 -Tpdf -o leaf.pdf leaf.dot
+leaf.gif: leaf.py Makefile
+	./leaf.py leaf.gif
 
-#leaf.dot: leaf
-#	./leaf 
-
-leaf: leaf.go
+leaf: leaf.py
 	./build.sh
 
 clean:
 	-@rm *.dot
 	-@rm *.scad
+	-@rm *.png
+	-@rm *.gif
+	-@rm *.pyc
 

@@ -21,3 +21,4 @@ openscad/data.scad
 data*.scad
 
 *.swp
+*.pyc
