@@ -19,29 +19,29 @@ class Leaf:
         tree = None
         growpoints = list()
 
-    def setSize(self, x, y):
+    def set_size(self, x, y):
         self.sizex = x
         self.sizey = y
 
-    def setInitialPointNum(self, n):
+    def set_initial_point_num(self, n):
         self.ninitialpoints = n
 
-    def setMaxVeinPoints(self, n):
+    def set_max_vein_points(self, n):
         self.maxVeintPoints = n
 
-    def setDeathDistance(self, distance):
+    def set_death_distance(self, distance):
         self.deathdistance = distance
 
-    def setGrowthSpeed(self, speed):
+    def set_growth_speed(self, speed):
         self.growthspeed = speed
 
-    def setAddGrowDensity(self, density):
+    def set_add_grow_density(self, density):
         self.addGrowthDensity = density
 
-    def makeinitialPoint(self, pnt):
+    def make_initial_point(self, pnt):
         self.tree = Tree(pnt)
 
-    def addinitialgrowpoints(self):
+    def add_initial_grow_points(self):
         points = list()
         for i in xrange(0, self.ninitialpoints):
             point = complex(random.random() * self.sizex, random.random() * self.sizey)
@@ -49,7 +49,7 @@ class Leaf:
         self.growpoints = points
         return len(points)
 
-    def addgrowpoints(self):
+    def add_grow_points(self):
         "Return true if adding was successful. False - if there was no free space to add points"
         return True  # TODO: self is unimplemented yet
         toadd = int(self.sizex * self.sizey * self.addGrowthDensity)
@@ -59,11 +59,11 @@ class Leaf:
             points.append(point)
         self.growpoints = points
 
-    def disposegrowpoints(self):
+    def dispose_grow_points(self):
         "TODO: this is not implemented yet. Should delete any grow points that are too close to the vein nodes"
         pass
 
-    def developVeins(self):
+    def develop_veins(self):
         "Return true if operation succeeded. Return false, if there is nothing to develop, or if tree size exceeded"
         return False
 

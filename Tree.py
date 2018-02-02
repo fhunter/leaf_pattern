@@ -8,7 +8,7 @@ class Tree:
             i.walk()
         self.action()
 
-    def addbranch(self, element):
+    def add_branch(self, element):
         self.branches.append(element)
 
     def action(self):

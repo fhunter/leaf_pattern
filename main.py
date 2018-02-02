@@ -27,22 +27,22 @@ growthspeed = 1.0
 addGrowthDensity = 0.000
 
 leaf = Leaf()  # We created a leaf
-leaf.setSize(xsize, ysize)
-leaf.setInitialPointNum(pointnum)
-leaf.setMaxVeinPoints(maxveinpoints)
-leaf.setDeathDistance(deathdistance)
-leaf.setGrowthSpeed(growthspeed)
-leaf.setAddGrowDensity(addGrowthDensity)
-leaf.makeinitialPoint(Point(0, ysize / 2))
-leaf.addinitialgrowpoints()  # Add first growpoints
+leaf.set_size(xsize, ysize)
+leaf.set_initial_point_num(pointnum)
+leaf.set_max_vein_points(maxveinpoints)
+leaf.set_death_distance(deathdistance)
+leaf.set_growth_speed(growthspeed)
+leaf.set_add_grow_density(addGrowthDensity)
+leaf.make_initial_point(Point(0, ysize / 2))
+leaf.add_initial_grow_points()  # Add first growpoints
 frames.append(leaf.draw())
 
 while True:
-    leaf.disposegrowpoints()
+    leaf.dispose_grow_points()
     frames.append(leaf.draw())
-    if not leaf.addgrowpoints():
+    if not leaf.add_grow_points():
         break
-    if not leaf.developVeins():
+    if not leaf.develop_veins():
         break
 
 frames[0].save(filename, save_all=True, append_images=frames[1:])
