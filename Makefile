@@ -1,7 +1,7 @@
 all: leaf.gif
 
-leaf.gif: leaf.py Makefile datatypes.py
-	./leaf.py leaf.gif
+leaf.gif: main.py Makefile Leaf.py Tree.py Point.py
+	./main.py leaf.gif
 
 clean:
 	-@rm *.dot

@@ -1,102 +1,90 @@
-#!/usr/bin/env python
-import cmath
 import PIL
 import PIL.Image
 import PIL.ImageDraw
 import random
+from Tree import Tree
 
-class Tree:
-    def __init__(this, root):
-        this.element=root
-        this.branches=list()
-    def walk(this):
-        for i in this.branches:
-            i.walk()
-        this.action()
-    def addbranch(this,element):
-        this.branches.append(element)
-    def action(this):
-        print this.element
-
-class Point:
-    def __init__(this, x, y):
-        this.point = complex(x,y)
-    def norm(this):
-        return cmath.rect(1, cmath.phase(this.point))
-    def distance(this, point2):
-        return abs(point2-this.point)
 
 class Leaf:
-    sizex=0
-    sizey=0
-    ninitialpoints = 0
-    maxVeintPoints = 0
-    numVeinPoints = 0
-    deathdistance = 0.0
-    growthspeed = 0.0
-    addGrowDensity = 0.0
+    def __init__(self):
+        sizex = 0
+        sizey = 0
+        ninitialpoints = 0
+        maxVeintPoints = 0
+        numVeinPoints = 0
+        deathdistance = 0.0
+        growthspeed = 0.0
+        addGrowDensity = 0.0
 
-    tree = None
-    growpoints = list()
+        tree = None
+        growpoints = list()
 
-    def __init__(this):
-        pass
-    def setSize(this, x, y):
-        this.sizex = x
-        this.sizey = y
-    def setInitialPointNum(this,  n):
-        this.ninitialpoints = n
-    def setMaxVeinPoints(this, n):
-        this.maxVeintPoints = n
-    def setDeathDistance(this,  distance):
-        this.deathdistance = distance
-    def setGrowthSpeed(this,  speed):
-        this.growthspeed = speed
-    def setAddGrowDensity(this, density):
-        this.addGrowthDensity = density
-    def makeinitialPoint(this, pnt):
-        this.tree = Tree(pnt)
-    def addinitialgrowpoints(this):
+    def setSize(self, x, y):
+        self.sizex = x
+        self.sizey = y
+
+    def setInitialPointNum(self, n):
+        self.ninitialpoints = n
+
+    def setMaxVeinPoints(self, n):
+        self.maxVeintPoints = n
+
+    def setDeathDistance(self, distance):
+        self.deathdistance = distance
+
+    def setGrowthSpeed(self, speed):
+        self.growthspeed = speed
+
+    def setAddGrowDensity(self, density):
+        self.addGrowthDensity = density
+
+    def makeinitialPoint(self, pnt):
+        self.tree = Tree(pnt)
+
+    def addinitialgrowpoints(self):
         points = list()
-        for i in xrange(0, this.ninitialpoints):
-            point = complex(random.random()*this.sizex, random.random()*this.sizey)
+        for i in xrange(0, self.ninitialpoints):
+            point = complex(random.random() * self.sizex, random.random() * self.sizey)
             points.append(point)
-        this.growpoints = points
+        self.growpoints = points
         return len(points)
-    def addgrowpoints(this):
+
+    def addgrowpoints(self):
         "Return true if adding was successful. False - if there was no free space to add points"
-        return True # TODO: this is unimplemented yet
-        toadd = int(this.sizex*this.sizey*this.addGrowthDensity)
-        points = this.growpoints
-        for i in xrange(0,toadd):
-            point = complex(random.random()*this.sizex, random.random()*this.sizey)
+        return True  # TODO: self is unimplemented yet
+        toadd = int(self.sizex * self.sizey * self.addGrowthDensity)
+        points = self.growpoints
+        for i in xrange(0, toadd):
+            point = complex(random.random() * self.sizex, random.random() * self.sizey)
             points.append(point)
-        this.growpoints = points
-    def disposegrowpoints(this):
+        self.growpoints = points
+
+    def disposegrowpoints(self):
         "TODO: this is not implemented yet. Should delete any grow points that are too close to the vein nodes"
         pass
-    def developVeins(this):
+
+    def developVeins(self):
         "Return true if operation succeeded. Return false, if there is nothing to develop, or if tree size exceeded"
         return False
 
-    def draw(this):
+    def draw(self):
 
         """ This function draws the current state of the leaf - veins, attractions, and grow points"""
-        image = PIL.Image.new("RGB", (this.sizex, this.sizey, ), 0) # Initial image
+        image = PIL.Image.new("RGB", (self.sizex, self.sizey,), 0)  # Initial image
         draw = PIL.ImageDraw.Draw(image)
-        deathdistance = this.deathdistance
-        #here goes grow point drawing
-        for i in this.growpoints:
+        deathdistance = self.deathdistance
+        # here goes grow point drawing
+        for i in self.growpoints:
             x = i.real
             y = i.imag
-            draw.ellipse((x-deathdistance/2,y-deathdistance/2,x+deathdistance/2,y+deathdistance/2),outline=(255,0,0))
-        #here goes venation drawing
-        #here goes vein connection drawing
-        #here goes attractions drawing
+            draw.ellipse((x - deathdistance / 2, y - deathdistance / 2, x + deathdistance / 2, y + deathdistance / 2),
+                         outline=(255, 0, 0))
+        # here goes venation drawing
+        # here goes vein connection drawing
+        # here goes attractions drawing
         return image
 
-
-#func findClosest(p complex128, vec []complex128) int {
+# func findClosest(p complex128, vec []complex128) int {
 #    if len(vec)==0 {
 #        return math.MaxInt32
 #    }
@@ -109,9 +97,9 @@ class Leaf:
 #        }
 #    }
 #    return minIndex
-#}
+# }
 #
-#func weight(tree map[int] []int, node int) float64 {
+# func weight(tree map[int] []int, node int) float64 {
 #    var ret float64 = 0.5
 #    if node > len(tree) {
 #        return ret
@@ -129,19 +117,19 @@ class Leaf:
 #        ret= math.Sqrt(ret)
 #    }
 #    return ret
-#}
+# }
 #
-#func calc_weights(tree map[int] []int,length int) []float64 {
+# func calc_weights(tree map[int] []int,length int) []float64 {
 #    weights:= make([]float64, length + 1, length+1)
 #    for i, _:= range tree {
 #        weights[i]= weight(tree, i)
 #    }
 #    return weights
-#}
+# }
 #
-#var frame int = 0
+# var frame int = 0
 #
-#func main() {
+# func main() {
 #    //point fill. square 100x100
 #    rand.Seed(time.Now().Unix())
 #    growpoints := make([]complex128, pointnum, pointnum)
@@ -212,4 +200,4 @@ class Leaf:
 #    dumpall(growpoints, veinNodes, tree, make([]int,0))
 #
 #
-#}
+# }
