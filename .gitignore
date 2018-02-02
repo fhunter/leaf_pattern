@@ -17,6 +17,7 @@ leaf
 leaf.pdf
 *.dot
 *.png
+*.gif
 openscad/data.scad
 data*.scad
 
